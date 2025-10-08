@@ -8,21 +8,20 @@ import (
 	"strings"
 )
 
-type JsonData struct {
-	Key   string
-	Value string
+type ProcessJson struct {
+	Path string
 }
 
 func ServerRun() {
 	http.HandleFunc("/input", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			if contentTypeCheck(r) {
-				jsonData, err := jsonParser(r)
+				jsonData, err := JsonParser(r)
 				if err != nil {
 					log.Println(err)
 					http.Error(w, "Invalid JSON", http.StatusBadRequest)
 				} else {
-					fmt.Fprintf(w, "Path of file: %+v", jsonData.Value)
+					fmt.Fprintf(w, "Path to file: %+v", jsonData.Path)
 				}
 			} else {
 				log.Printf("Invalid Content-Type, \"application/json\" is needed")
@@ -34,8 +33,8 @@ func ServerRun() {
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
-func jsonParser(r *http.Request) (JsonData, error) {
-	jsonData := JsonData{}
+func JsonParser(r *http.Request) (ProcessJson, error) {
+	jsonData := ProcessJson{}
 	err := json.NewDecoder(r.Body).Decode(&jsonData)
 	if err != nil {
 		log.Println("Invalid JSON")
